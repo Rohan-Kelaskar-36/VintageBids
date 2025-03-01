@@ -1,0 +1,30 @@
+[
+    {
+      "id": 1,
+      "itemName": "Vintage Pocket Watch",
+      "description": "A beautiful 19th-century pocket watch in excellent condition.",
+      "currentBid": 150000,
+      "highestBidder": "Charan Naik",
+      "closingTime": "2025-02-27T18:00",
+      "image": "https://img.freepik.com/free-photo/closeup-shot-vintage-pocket-watch-black-surface_181624-21863.jpg?t=st=1740143049~exp=1740146649~hmac=a72e272b9c21f5868f1421feed58625e7236df91aef70b62a26d00ec8fbcbd0c&w=1380"
+    },
+    {
+      "id": 2,
+      "itemName": "Antique Flower Vase",
+      "description": "An elegant ArtX Flower Vase, perfect for collectors.",
+      "currentBid": 10000,
+      "highestBidder": "Narasimha Gouda",
+      "closingTime": "2025-03-02T20:00",
+      "image": "https://img.freepik.com/free-photo/vintage-red-vase-with-red-orange-peonies-front-old-wall_181624-13939.jpg?t=st=1740142796~exp=1740146396~hmac=a713c213737d0c54a8a8b1d3ad8033ab7b7be45847be955271f0e60399d5f0cc&w=1800"
+    },
+    {
+      "id": 3,
+      "itemName": "Austin-Healey 3000",
+      "description": "A classic vintage car in pristine condition.",
+      "currentBid": 200000000,
+      "highestBidder": "Naveen Madiwal",
+      "closingTime": "2025-03-05T22:00",
+      "image": "https://img.freepik.com/free-photo/old-fashioned-chrome-car-vintage-elegance-driving-through-rural-sunset-landscape-generated-by-artificial-intelligence_24640-131029.jpg?t=st=1740142355~exp=1740145955~hmac=8da2320a39dece2a37bbef1505fe402024cb8fe098c8a62159b2a5f7d8673482&w=2000"
+    }
+  ]
+  

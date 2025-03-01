@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../App.css"; // Import global styles
+import "../App.css"; 
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -19,12 +19,12 @@ const Login = () => {
     e.preventDefault();
     console.log("Login Data:", user);
     alert("Login successful! (Backend integration pending)");
-    navigate("/dashboard"); // Redirect to dashboard
+    navigate("/dashboard"); 
   };
 
   return (
-    <div className="container-fluid d-flex justify-content-center align-items-center min-vh-100 bg-light">
-      <div className="row justify-content-center w-100">
+    <div className="container-fluid d-flex justify-content-center align-items-center min-vh-100 min-vw-75 bg-light">
+      <div className="row justify-content-center">
         <div className="col-lg-12 col-md-12 col-sm-9 col-11">
           <div className="card shadow-lg p-4 mx-auto" style={{ maxWidth: "500px" }}>
             <div className="card-body">
@@ -62,8 +62,16 @@ const Login = () => {
               {/* Centering the links using Bootstrap Flex Utilities */}
               <div className="d-flex justify-content-between mt-3">
                 <a href="/signup">Sign Up</a>
+                <button className="btn btn-link p-0" onClick={() => navigate("/UserForgotPassword")}>
+                  Forgot Password?
+                </button>
+              </div>
+
+              {/* Home Button */}
+              <div className="text-center mt-2">
                 <button className="btn btn-link p-0" onClick={() => navigate("/")}>Home</button>
               </div>
+
             </div>
           </div>
         </div>
