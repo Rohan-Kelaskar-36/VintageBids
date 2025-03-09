@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 
 const soldItemSchema = new mongoose.Schema({
-  itemName: String,
-  soldPrice: Number,
-  winner: String, // Username of the highest bidder
+  itemName: { type: String, required: true },
+  soldPrice: { type: Number, required: true },
+  winner: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  description:{ type: String, required: true },
 });
 
 const SoldItem = mongoose.model("SoldItem", soldItemSchema);

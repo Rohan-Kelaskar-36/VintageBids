@@ -1,25 +1,48 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../App.css"; 
+import "../App.css";
 
 const Login = () => {
-  const [user, setUser] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [user, setUser] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await axios.post("http://localhost:4036/api/auth/login", user, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.status === 200) {
+        const { token, user } = response.data;
+
+        // ✅ Clear any old user data before storing the new login
+        localStorage.clear();
+
+        // ✅ Store new login details under a single key
+        localStorage.setItem("token", token);
+        localStorage.setItem("userInfo", JSON.stringify(user));
+
+        alert("Login successful!");
+        navigate("/Dashboard");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login Data:", user);
-    alert("Login successful! (Backend integration pending)");
-    navigate("/dashboard"); 
   };
 
   return (
@@ -29,6 +52,7 @@ const Login = () => {
           <div className="card shadow-lg p-4 mx-auto" style={{ maxWidth: "500px" }}>
             <div className="card-body">
               <h2 className="text-center mb-4">Login</h2>
+              {error && <p className="text-danger text-center">{error}</p>}
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label className="form-label">Email</label>
@@ -54,24 +78,23 @@ const Login = () => {
                   />
                 </div>
 
-                <button type="submit" className="btn btn-primary w-100">
-                  Login
+                <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                  {loading ? "Logging in..." : "Login"}
                 </button>
               </form>
 
-              {/* Centering the links using Bootstrap Flex Utilities */}
               <div className="d-flex justify-content-between mt-3">
-                <a href="/signup">Sign Up</a>
+                <Link to="/signup">Sign Up</Link>
                 <button className="btn btn-link p-0" onClick={() => navigate("/UserForgotPassword")}>
                   Forgot Password?
                 </button>
               </div>
 
-              {/* Home Button */}
               <div className="text-center mt-2">
-                <button className="btn btn-link p-0" onClick={() => navigate("/")}>Home</button>
+                <button className="btn btn-link p-0" onClick={() => navigate("/")}>
+                  Home
+                </button>
               </div>
-
             </div>
           </div>
         </div>

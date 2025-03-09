@@ -4,7 +4,7 @@ import LandingPage from "./components/LandingPage";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
-import PostAuction from "./components/PostAuction";
+import PostAuction from "./components/admin/PostAuction";
 import LiveAuctions from "./components/LiveAuctions";
 import ViewMyItems from "./components/ViewMyItems";
 import SoldItems from "./components/SoldItems";

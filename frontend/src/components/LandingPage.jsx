@@ -77,8 +77,6 @@ const LandingPage = () => {
           </div>
         </div>
       </nav>
-
-      
       <header className="bg-primary text-white text-center py-5 w-100">
         <div className="container-fluid">
           <h1>Welcome to Vintage Auctions</h1>
@@ -89,7 +87,7 @@ const LandingPage = () => {
           <Link to="/SignUp" className="btn btn-light btn-lg">Get Started</Link>
         </div>
       </header>
-      <section className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100">
+      <section className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100 h-100">
         <h2 className="text-center mb-4 mt-3">Featured Auctions</h2>
         <div className="row g-4 w-100 px-5">
           {[  
@@ -122,7 +120,7 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
-      <footer className="bg-dark text-white text-center py-3 w-100">
+      <footer className="bg-dark text-white text-center py-3 w-100 fix-bottom">
         <p>&copy; 2025 VintageBids. All rights reserved.</p>
       </footer>
     </div>

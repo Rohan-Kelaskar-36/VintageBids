@@ -1,38 +1,66 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 const LiveAuctions = () => {
   const [auctions, setAuctions] = useState([]);
-  const [myItems, setMyItems] = useState([]);
+  const [dummyCoins, setDummyCoins] = useState(0);
   const navigate = useNavigate();
+  const userInfo = JSON.parse(localStorage.getItem("userInfo")); // Parse JSON
+const userId = userInfo?._id; // Access _id safely
+ // Ensure correct user ID
+  const userName = localStorage.getItem("name"); // Store user name
 
   useEffect(() => {
-    fetch("/list.json")
-      .then((response) => response.json())
-      .then((data) => {
-        const updatedAuctions = data.map(auction => ({
-          ...auction,
-          timeRemaining: calculateTimeRemaining(auction.closingTime),
-        }));
+    const fetchUserCoins = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Ensure token is stored
+        if (!userId || !token) {
+          console.error("Missing userId or token!");
+          return;
+        }
 
-        
-        const storedMyItems = JSON.parse(localStorage.getItem("myItems")) || [];
-        
-        
-        const availableAuctions = updatedAuctions.filter(
-          (auction) => !storedMyItems.some((item) => item.id === auction.id)
-        );
+        // console.log("Fetching user with ID:", userId);
+      
+        const response = await axios.get(`http://localhost:4036/api/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        setAuctions(availableAuctions);
-        setMyItems(storedMyItems);
-      })
-      .catch((error) => console.error("Error fetching auction data:", error));
+        console.log("User coins:", response.data.dummyCoins);
+        setDummyCoins(response.data.dummyCoins);
+      } catch (error) {
+        console.error("Error fetching user coins:", error.response?.data || error.message);
+      }
+    };
 
-    
+    fetchUserCoins();
+  }, [userId]); // Depend on `userId` to avoid unnecessary re-fetching
+
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      try {
+        const response = await axios.get("http://localhost:4036/api/auctions/");
+const approvedAuctions = response.data
+  .filter((auction) => auction.status === "Approved")
+  .map((auction) => ({
+    ...auction,
+    timeRemaining: calculateTimeRemaining(auction.closingTime),
+    highestBidder: auction.highestBidderName || "No bid yet", // ✅ Use highestBidderName
+  }));
+
+setAuctions(approvedAuctions);
+
+      } catch (error) {
+        console.error("Error fetching auction data:", error);
+      }
+    };
+
+    fetchAuctions();
+
     const interval = setInterval(() => {
-      setAuctions(prevAuctions =>
-        prevAuctions.map(auction => ({
+      setAuctions((prevAuctions) =>
+        prevAuctions.map((auction) => ({
           ...auction,
           timeRemaining: calculateTimeRemaining(auction.closingTime),
         }))
@@ -40,9 +68,8 @@ const LiveAuctions = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, []); // ✅ Fetch auctions once on component mount
 
-  
   const calculateTimeRemaining = (closingTime) => {
     const now = new Date();
     const closingDate = new Date(closingTime);
@@ -57,134 +84,91 @@ const LiveAuctions = () => {
     return `${hours}h ${minutes}m ${seconds}s`;
   };
 
- 
-  const handleBid = (id) => {
+  const handleBid = async (id) => {
     const bidAmount = prompt("Enter your bid amount:");
-
-    if (!bidAmount || isNaN(bidAmount) || bidAmount <= 0) {
+    if (!bidAmount || isNaN(bidAmount) || parseInt(bidAmount) <= 0) {
       alert("Invalid bid amount!");
       return;
     }
 
-    setAuctions((prevAuctions) =>
-      prevAuctions.map((auction) =>
-        auction.id === id && parseInt(bidAmount) > auction.currentBid
-          ? { ...auction, currentBid: parseInt(bidAmount), highestBidder: "You" }
-          : auction
-      )
-    );
+    const auction = auctions.find((auction) => auction._id === id);
+    if (!auction) {
+      alert("Auction not found!");
+      return;
+    }
+
+    if (parseInt(bidAmount) <= auction.startingBid) {
+      alert("Your bid must be higher than the current bid!");
+      return;
+    }
+
+    if (dummyCoins < parseInt(bidAmount)) {
+      alert("Insufficient coins!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `http://localhost:4036/api/auctions/${id}/bid`,
+        { bidAmount: parseInt(bidAmount), userId, userName },
+        { headers: { Authorization: `Bearer ${token}` } } // ✅ Ensure authentication
+      );
+
+      alert("Bid placed successfully!");
+      setAuctions((prevAuctions) =>
+        prevAuctions.map((auction) =>
+          auction._id === id
+            ? { ...auction, startingBid: parseInt(bidAmount), highestBidder: userName }
+            : auction
+        )
+      );
+
+      setDummyCoins((prevCoins) => prevCoins - parseInt(bidAmount)); // Deduct coins
+    } catch (error) {
+      console.error("Error placing bid:", error);
+      alert(error.response?.data?.message || "Failed to place bid. Please try again.");
+    }
   };
-
-  
-  useEffect(() => {
-    const checkAuctionWinners = () => {
-      setAuctions((prevAuctions) => {
-        const wonItems = prevAuctions.filter(
-          (auction) => auction.timeRemaining === "Auction Ended" && auction.highestBidder === "You"
-        );
-
-        if (wonItems.length > 0) {
-          const updatedMyItems = [...myItems, ...wonItems];
-
-         
-          localStorage.setItem("myItems", JSON.stringify(updatedMyItems));
-          setMyItems(updatedMyItems);
-
-          
-          return prevAuctions.filter((auction) => !wonItems.includes(auction));
-        }
-        return prevAuctions;
-      });
-    };
-
-    const interval = setInterval(checkAuctionWinners, 1000);
-    return () => clearInterval(interval);
-  }, [auctions, myItems]);
 
   return (
     <div className="container-fluid min-vh-100 min-vw-100 bg-light">
-      
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100 sticky-top">
         <div className="container-fluid">
           <a className="navbar-brand" href="/Dashboard">
             <span className="text-light">Vintage</span>
             <span className="text-success">Bids</span>
-            <span className="px-1">
-              <img src="src/images/hammer-icon-white.png" height="20rem" width="20rem" alt="Logo" />
-            </span>
           </a>
           <div className="mx-3 d-flex gap-3">
-            <button className="btn  btn-outline-light" onClick={() => navigate("/Dashboard")}>
-            Dashboard
-          </button>
-          <button className="btn  btn-outline-light" onClick={() => navigate("/")}>
-            Home
-          </button>
-          <button className="btn text-light bg-danger btn-outline-light" onClick={() => navigate("/")}>Logout</button>
+            <button className="btn btn-outline-light" onClick={() => navigate("/Dashboard")}>Dashboard</button>
+            <button className="btn btn-outline-light" onClick={() => navigate("/")}>Home</button>
+            <button className="btn text-light bg-danger btn-outline-light" onClick={() => navigate("/")}>Logout</button>
           </div>
         </div>
       </nav>
 
-      
       <div className="container py-4">
         <h2 className="text-center mb-4">Live Auctions</h2>
         <div className="row">
           {auctions.map((auction) => (
-            <div key={auction.id} className="col-md-4 mb-4">
+            <div key={auction._id} className="col-md-4 mb-4">
               <div className="card h-100 shadow-sm">
-                <img
-                  src={auction.image}
-                  className="card-img-top"
-                  alt={auction.itemName}
-                  style={{ height: "200px", objectFit: "cover" }}
-                />
+                <img src={`http://localhost:4036${auction.imageUrl}`} className="card-img-top" alt={auction.itemName} style={{ height: "200px", objectFit: "cover" }} />
                 <div className="card-body">
                   <h5 className="card-title">{auction.itemName}</h5>
-                  <p className="card-text">{auction.description}</p>
-                  <p><strong>Current Bid:</strong> ₹{auction.currentBid}</p>
-                  <p><strong>Highest Bidder:</strong> {auction.highestBidder ? auction.highestBidder : "No bid yet"}</p>
+                  <p><strong>Item Name:</strong> {auction.title}</p>
+                  <p><strong>Current Bid:</strong> ₹{auction.startingBid}</p>
+                  <p><strong>Highest Bidder:</strong> {auction.highestBidder || "No bid yet"}</p>
                   <p><strong>Time Remaining:</strong> {auction.timeRemaining}</p>
                 </div>
                 <div className="card-footer">
-                  <button className="btn btn-primary w-100" onClick={() => handleBid(auction.id)}>
-                    Place a Bid
-                  </button>
+                  <button className="btn btn-primary w-100" onClick={() => handleBid(auction._id)}>Place a Bid</button>
                 </div>
               </div>
             </div>
           ))}
-          {auctions.length === 0 && <p className="text-center">No live auctions available.</p>}
         </div>
       </div>
-
-      <div className="container py-4">
-        <h2 className="text-center mb-4">View My Items</h2>
-        <div className="row">
-          {myItems.map((item) => (
-            <div key={item.id} className="col-md-4 mb-4">
-              <div className="card h-100 shadow-sm">
-                <img
-                  src={item.image}
-                  className="card-img-top"
-                  alt={item.itemName}
-                  style={{ height: "200px", objectFit: "cover" }}
-                />
-                <div className="card-body">
-                  <h5 className="card-title">{item.itemName}</h5>
-                  <p className="card-text">{item.description}</p>
-                  <p><strong>Winning Bid:</strong> ₹{item.currentBid}</p>
-                  <p><strong>Won By:</strong> You</p>
-                </div>
-              </div>
-            </div>
-          ))}
-          {myItems.length === 0 && <p className="text-center">You haven't won any items yet.</p>}
-        </div>
-      </div>
-
-      <footer className="bg-dark text-white text-center py-3 w-100">
-        <p>&copy; 2025 VintageBids. All rights reserved.</p>
-      </footer>
     </div>
   );
 };
