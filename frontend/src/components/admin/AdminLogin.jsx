@@ -22,8 +22,9 @@ const AdminLogin = () => {
       console.log("Backend Response:", response.data); // Debugging
   
       if (response.data.token) {
-        localStorage.setItem("adminToken", response.data.token); // Store token
+        localStorage.setItem("token", response.data.token); // Store token
         localStorage.setItem("adminInfo", JSON.stringify(response.data.admin)); // Store admin details
+        localStorage.setItem("role", "admin");
         console.log("Login successful, token stored!");
         navigate("/AdminDashboard"); // Redirect to admin dashboard
       } else {

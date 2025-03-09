@@ -14,22 +14,18 @@ const LandingPage = () => {
     let timeout;
     
     if (!isDeleting && index < text.length) {
-      
       timeout = setTimeout(() => {
         setDisplayText((prev) => prev + text[index]);
         setIndex(index + 1);
       }, 100);
     } else if (!isDeleting && index === text.length) {
-     
       timeout = setTimeout(() => setIsDeleting(true), 2000);
     } else if (isDeleting && index > 0) {
-      
       timeout = setTimeout(() => {
         setDisplayText((prev) => prev.slice(0, -1));
         setIndex(index - 1);
       }, 50);
     } else if (isDeleting && index === 0) {
-      
       setIsDeleting(false);
     }
 
@@ -37,8 +33,8 @@ const LandingPage = () => {
   }, [index, isDeleting, text]);
 
   return (
-    <div className="vh-100 vw-100 d-flex flex-column">
-      
+    <div className="d-flex flex-column min-vh-100">
+      {/* Navbar */}
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark w-100 sticky-top">
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">
@@ -77,8 +73,10 @@ const LandingPage = () => {
           </div>
         </div>
       </nav>
+
+      {/* Header */}
       <header className="bg-primary text-white text-center py-5 w-100">
-        <div className="container-fluid">
+        <div className="container">
           <h1>Welcome to Vintage Auctions</h1>
           <p className="lead typing-text">
             {displayText}
@@ -87,24 +85,26 @@ const LandingPage = () => {
           <Link to="/SignUp" className="btn btn-light btn-lg">Get Started</Link>
         </div>
       </header>
-      <section className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100 h-100">
+
+      {/* Main Content */}
+      <section className="flex-grow-1 d-flex flex-column align-items-center justify-content-center w-100">
         <h2 className="text-center mb-4 mt-3">Featured Auctions</h2>
         <div className="row g-4 w-100 px-5">
-          {[  
+          {[
             {
               title: "ArtX Flower Vase Art",
               price: "₹10000",
-              img: "https://img.freepik.com/free-photo/vintage-red-vase-with-red-orange-peonies-front-old-wall_181624-13939.jpg?t=st=1740142796~exp=1740146396~hmac=a713c213737d0c54a8a8b1d3ad8033ab7b7be45847be955271f0e60399d5f0cc&w=1800"
+              img: "https://img.freepik.com/free-photo/vintage-red-vase-with-red-orange-peonies-front-old-wall_181624-13939.jpg?w=1800"
             },
             {
               title: "Vintage Pocket Watch",
               price: "₹150000",
-              img: "https://img.freepik.com/free-photo/closeup-shot-vintage-pocket-watch-black-surface_181624-21863.jpg?t=st=1740143049~exp=1740146649~hmac=a72e272b9c21f5868f1421feed58625e7236df91aef70b62a26d00ec8fbcbd0c&w=1380"
+              img: "https://img.freepik.com/free-photo/closeup-shot-vintage-pocket-watch-black-surface_181624-21863.jpg?w=1380"
             },
             {
               title: "Austin-Healey 3000",
               price: "₹20000000",
-              img: "https://img.freepik.com/free-photo/old-fashioned-chrome-car-vintage-elegance-driving-through-rural-sunset-landscape-generated-by-artificial-intelligence_24640-131029.jpg?t=st=1740142355~exp=1740145955~hmac=8da2320a39dece2a37bbef1505fe402024cb8fe098c8a62159b2a5f7d8673482&w=2000"
+              img: "https://img.freepik.com/free-photo/old-fashioned-chrome-car-vintage-elegance-driving-through-rural-sunset-landscape_24640-131029.jpg?w=2000"
             }
           ].map((item, index) => (
             <div key={index} className="col-lg-4 col-md-6 col-sm-12">
@@ -120,7 +120,9 @@ const LandingPage = () => {
           ))}
         </div>
       </section>
-      <footer className="bg-dark text-white text-center py-3 w-100 fix-bottom">
+
+      {/* Footer */}
+      <footer className="bg-dark text-white text-center py-3 w-100 mt-auto">
         <p>&copy; 2025 VintageBids. All rights reserved.</p>
       </footer>
     </div>

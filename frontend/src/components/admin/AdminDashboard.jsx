@@ -7,8 +7,11 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("adminToken"); // Ensure token is removed
+    
+    localStorage.removeItem("token"); // Ensure token is removed
     localStorage.removeItem("adminInfo"); // Clear admin info
+     // Remove token
+    localStorage.removeItem("role"); 
     navigate("/"); // Redirect to login page
   };
   useEffect(() => {
